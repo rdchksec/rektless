@@ -42,7 +42,7 @@ const simulateBundleAsync = async (transactions, blockNumber) => {
 const submitBundleAsync = async (transactions, blockNumber) => {
     try {
         const flashbotsProvider = await createFlashBotsClientAsync();
-        const bundleSubmission = flashbotsProvider.sendRawBundle(
+        const bundleSubmission = await flashbotsProvider.sendRawBundle(
             transactions,
             blockNumber
         );
@@ -56,7 +56,22 @@ const submitBundleAsync = async (transactions, blockNumber) => {
     return false;
 }
 
+const submitBundleToFutureBlockAsync = async (transactions, blocksCount) => {
+    //TODO: wait until block is mined and submit only if transaction were not found in mined block
+    let currentBlockNumber = await blockChainProvider.getBlockNumber();
+    let startBlock = currentBlockNumber+1;
+    let endBlock = startBlock+blocksCount;
+    let blocksToSubmit = Array(endBlock-startBlock+1).fill().map(() => startBlock++);
+    let lastBundleSubmitResult;
+    await Promise.all(blocksToSubmit.map(async (block) => {
+        lastBundleSubmitResult =  await submitBundleAsync(transactions, block);
+    }));
+
+    return lastBundleSubmitResult;
+}
+
 module.exports = {
     simulateBundleAsync,
-    submitBundleAsync
+    submitBundleAsync,
+    submitBundleToFutureBlockAsync
 }

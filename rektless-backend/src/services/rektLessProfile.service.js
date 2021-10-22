@@ -5,10 +5,7 @@ let rektLessProfiles = {
         protocolName: "ShitCoinFarmingDefi",
         migratorContractAddress: "0x...",
         stakingTokenContractAddress: "0x...",
-        usersMigrationRequests: [{
-            signedApprovalTransaction: "0x...",
-            signedMigrateTransaction: "0x..."
-        }]
+        usersMigrationRequests: []
     }
 };
 

@@ -35,8 +35,8 @@ const addUserMigrationRequestAsync = async (req, res) => {
         return res.status(404).send({ message: "Bad request. No such rektless profile" });
     }
 
-    let flashBotsResult = await flashBotsService.simulateBundleAsync([approvalTransaction, migrationTransaction]);
-    if(!flashBotsResult || flashBotsResult.error){
+    let simulationResult = await flashBotsService.simulateBundleAsync([approvalTransaction, migrationTransaction]);
+    if(isInValidSimulationResult(simulationResult)){
         return res.status(400).send({ message: "Bad request. Invalid signed transactions" });
     }
 
@@ -51,7 +51,42 @@ const addUserMigrationRequestAsync = async (req, res) => {
 }
 
 const runRektLessProfileMigrationAsync = async (req, res) => {
-    return res.status(500).send({ message: "Not implemented yet" });
+    const { protocolAddress } = req.params;
+    const { unpauseTransaction, pauseTransaction } = req.body;
+    if (!unpauseTransaction || !pauseTransaction ) {
+        return res.status(400).send({ message: "Bad request. You should add unpause and pause transactions" });
+    }
+
+    let rektLessProfile = await rektLessProfileService.getRektLessProfileAsync(protocolAddress);
+    if(!rektLessProfile){
+        return res.status(404).send({ message: "Bad request. No such rektless profile" });
+    }
+
+    //Simulate Each Migration Request and submit a block
+    let transactionsToSubmit = [];
+    await Promise.all(rektLessProfile.usersMigrationRequests.map(async (umr) => {
+        const simulationResult = await flashBotsService.simulateBundleAsync([umr.approvalTransaction, umr.migrationTransaction])
+        if(!isInValidSimulationResult(simulationResult)){
+            transactionsToSubmit.push(umr.approvalTransaction);
+            transactionsToSubmit.push(umr.migrationTransaction);
+        }
+    }));
+
+    if(transactionsToSubmit.length == 0){
+        return res.status(400).send({ message: "Nothing to Submit. Unable to submit private transactions." });
+    }
+    //TODO: add pause and unpause transactions + add their simulation
+    //transactionsToSubmit = [unpauseTransaction].concat(transactionsToSubmit);
+    //transactionsToSubmit.push(pauseTransaction);
+
+    let flashSubmissionBotsResult = await flashBotsService.submitBundleToFutureBlockAsync(transactionsToSubmit, 20);
+    console.log(flashSubmissionBotsResult);
+    if(!flashSubmissionBotsResult || flashSubmissionBotsResult.error){
+        return res.status(500).send({ message: "Server Error. Unable to submit private transactions." });
+    }
+
+    let txHashes = flashSubmissionBotsResult.bundleTransactions.map(tx => tx.hash);
+    return res.status(201).send({ txHashes: txHashes});
 }
 
 const removeRektLessProfilesAsync = async (req, res) => {
@@ -66,6 +101,8 @@ const removeRektLessProfilesAsync = async (req, res) => {
 
     return res.status(201).send();
 }
+
+const isInValidSimulationResult = (flashBotsResult) => !flashBotsResult || flashBotsResult.error || flashBotsResult.result.results.some(r => r.error);
 
 module.exports = {
     createRektLessProfileAsync,

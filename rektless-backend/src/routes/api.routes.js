@@ -25,4 +25,7 @@ router.route('/rektLessProfiles/:protocolAddress')
 router.route('/rektLessProfiles/:protocolAddress/userMigrations')
     .post(addUserMigrationRequestAsync)
 
+router.route('/rektLessProfiles/:protocolAddress/run')
+    .post(runRektLessProfileMigrationAsync)
+
 module.exports = router;
