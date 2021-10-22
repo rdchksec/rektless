@@ -1,29 +1,29 @@
 "use strict";
-
-let rektLessProfiles = {
-    "protocolAddress..0x...": {
-        protocolName: "ShitCoinFarmingDefi",
-        migratorContractAddress: "0x...",
-        stakingTokenContractAddress: "0x...",
-        usersMigrationRequests: []
-    }
-};
+const Redis = require('./redis');
 
 const getRektLessProfileAsync = async (protocolAddress) => {
-    return rektLessProfiles[protocolAddress];
+    let res = await Redis.getAsync(protocolAddress);
+    return JSON.parse(res);
 }
 
 const saveRektLessProfileAsync = async (rektLessProfileToSave) => {
-    rektLessProfiles[rektLessProfileToSave.protocolAddress] = rektLessProfileToSave;
+    await Redis.setAsync(rektLessProfileToSave.protocolAddress, JSON.stringify(rektLessProfileToSave));
     return rektLessProfileToSave;
 }
 
 const getAllRektLessProfilesAsync = async () => {
+    let allRektLessKeys = await Redis.keysAsync("*");
+
+    let rektLessProfiles = [];
+    await Promise.all(allRektLessKeys.map(async (protocolAddress) => {
+        rektLessProfiles.push(await getRektLessProfileAsync(protocolAddress));
+    }));
+
     return rektLessProfiles;
 }
 
 const removeRektLessProfileAsync = async (protocolAddress) => {
-    rektLessProfiles[protocolAddress] = null;
+    await Redis.delAsync(protocolAddress);
 }
 
 module.exports = {

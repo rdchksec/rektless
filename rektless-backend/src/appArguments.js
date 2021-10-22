@@ -3,5 +3,6 @@ exports.getAppArguments = () => {
         chainId: 5,
         infuraUrl: "",
         someAccountPrivateKey: "",
+        redisConnectionString: ""
     };
 };
