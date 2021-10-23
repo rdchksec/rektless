@@ -1,0 +1,15 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "bool",
+                "name": "val",
+                "type": "bool"
+            }
+        ],
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
