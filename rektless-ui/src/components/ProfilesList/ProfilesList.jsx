@@ -121,7 +121,16 @@ class ProfilesList extends React.Component {
             return false;
         }
 
-        await this.setState({ successMessage: "Run transaction sent successfully" });
+        let msg = <div>
+            <div>Transaction Bundle sent successfully. It will be privately mined in 1-10 blocks.</div>
+            <div>Please, check its status here: </div>
+            {
+                !!sendTransactionResponse.txHashes &&
+                sendTransactionResponse.txHashes.map((hash, i) => <div>{i === 0 ? "unpause - " : i == (sendTransactionResponse.txHashes.length - 1) ? "pause - " : "user transactions - "}<a href={`https://goerli.etherscan.io/tx/${hash}`} target="_blank">{hash}</a></div>)
+            }
+        </div>
+
+        await this.setState({ successMessage: msg });
         return true;
     };
 
@@ -155,21 +164,22 @@ class ProfilesList extends React.Component {
                 key: 'run',
                 width: "100px",
                 align: "center",
-                render: (text, record, index) => <a className={'run-link'+(loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.runProfile(index)}>run</a>,
+                render: (text, record, index) => <a className={'run-link' + (loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.runProfile(index)}>run</a>,
             },
             {
                 title: '',
                 dataIndex: '',
                 key: 'del',
                 width: "50px",
-                render: (text, record) => <a className={'del-link'+(loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.deleteProfile(record.protocolAddress)}><Icon type="close-circle" theme="twoTone" twoToneColor="red" /></a>,
+                render: (text, record) => <a className={'del-link' + (loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.deleteProfile(record.protocolAddress)}><Icon type="close-circle" theme="twoTone" twoToneColor="red" /></a>,
             },
         ];
+        
         return (
             <div className={"profiles-list"}>
                 {
                     !!successMessage &&
-                    <Alert message={successMessage} type="success" />
+                    <Alert style={{ textAlign: "left" }} message={successMessage} type="success" />
                 }
                 {
                     !!errorMessage &&

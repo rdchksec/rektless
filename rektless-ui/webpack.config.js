@@ -19,6 +19,13 @@ module.exports = {
                 use: ['@svgr/webpack'],
             },
             {
+                test: /\.(jpe?g|png|gif|svg)$/i,
+                loader: 'file-loader',
+                options: {
+                    name: '/public/icons/[name].[ext]'
+                }
+            },
+            {
                 test: /\.css$/,
                 loader: "style-loader!css-loader"
             },

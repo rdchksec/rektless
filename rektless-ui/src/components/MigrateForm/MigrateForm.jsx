@@ -2,6 +2,7 @@ import React from "react";
 import { Alert, Form, Button, Select } from 'antd';
 import Rektless from '../../services/rektless';
 import { sleep } from '../../services/utils';
+import defiIcon from "../../../public/icons/defi.jpg";
 import './MigrateForm.less';
 import LoadingModal from "../LoadingModal/LoadingModal.jsx";
 
@@ -31,9 +32,9 @@ class MigrateForm extends React.Component {
       .then(profiles => {
         this.setState({ profiles });
         let protocolAddressParam = this.props.match.params.protocolAddress;
-        if(!!protocolAddressParam){
-          for(let i in this.state.profiles){
-            if(this.state.profiles[i].protocolAddress.toLowerCase() === protocolAddressParam.toLowerCase()){
+        if (!!protocolAddressParam) {
+          for (let i in this.state.profiles) {
+            if (this.state.profiles[i].protocolAddress.toLowerCase() === protocolAddressParam.toLowerCase()) {
               this.setState({ profile: Number(i) });
               break;
             }
@@ -51,7 +52,7 @@ class MigrateForm extends React.Component {
       await this.setState({
         profile: value - 1
       });
-      this.props.history.push("/"+this.state.profiles[this.state.profile].protocolAddress);
+      this.props.history.push("/" + this.state.profiles[this.state.profile].protocolAddress);
     }
   }
 
@@ -116,7 +117,7 @@ class MigrateForm extends React.Component {
           return false;
         }
 
-        await this.setState({ successMessage: "Migration transaction sent successfully" });
+        await this.setState({ successMessage: <div><div><b>Migration transaction sent successfully.</b></div><div>Your transaction will be securely mined in 10 minutes in bundle with other users migrations transactions.</div><div>Please, do not perform any actions from your account in order to keep actual nonce</div></div> });
         return true;
       }
     });
@@ -128,90 +129,94 @@ class MigrateForm extends React.Component {
     const { getFieldDecorator } = this.props.form;
 
     return (
-      <Form
-        name="main_form"
-        className="main-form"
-        layout="vertical"
-        autoComplete="off"
-        onSubmit={this.onSubmit}
-      >
-        {
-          !!successMessage &&
-          <Alert message={successMessage} type="success" />
-        }
-        {
-          !!errorMessage &&
-          <Alert message={errorMessage} type="error" />
-        }
-        <Form.Item
-          label="profile"
+      <div className={"migration"}>
+        <h3>Securely migrate your funds from frozen vulnerable staking contract</h3>
+        <Form
+          name="main_form"
+          className="main-form"
+          layout="vertical"
+          autoComplete="off"
+          onSubmit={this.onSubmit}
         >
-          {getFieldDecorator('profile', {
-            initialValue: typeof profile !== "number" ? 0 : profile + 1,
-            rules: [
-              {
-                required: true,
-                message: 'please select profile'
-              }
-            ],
-          })(
-            <Select
-              onChange={this.handleSelectProfile}
-              disabled={!address}
-            >
-              <Option key={1} value={0} disabled={true}>select profile</Option>
-              {
-                profiles.map((p, index) => <Option key={index + 2} value={index + 1}>{p.protocolName}</Option>)
-              }
-            </Select>
-          )}
-        </Form.Item>
-        {
-          !!profiles[profile] &&
-          <>
-            <Form.Item
-              label="protocol address"
-              style={{ textAlign: "left" }}
-            >
-              <a href={`https://goerli.etherscan.io/address/${profiles[profile].protocolAddress}`} target="_blank">{profiles[profile].protocolAddress}</a>
-            </Form.Item>
-            <Form.Item
-              label="migrator contract address"
-              style={{ textAlign: "left" }}
-            >
-              <a href={`https://goerli.etherscan.io/address/${profiles[profile].migratorContractAddress}`} target="_blank">{profiles[profile].migratorContractAddress}</a>
-            </Form.Item>
-            <Form.Item
-              label="staking token contract address"
-              style={{ textAlign: "left" }}
-            >
-              <a href={`https://goerli.etherscan.io/address/${profiles[profile].stakingTokenContractAddress}`} target="_blank">{profiles[profile].stakingTokenContractAddress}</a>
-            </Form.Item>
-          </>
-        }
-        <div>
-          <Button style={{marginBottom: "10px"}} type="primary" htmlType="submit" disabled={profile == null || !address}>
-            migrate to fixed protocol
-          </Button>
-          <Button type="primary" disabled={true}>
-            securely withdraw funds (comming soon)
-          </Button>
-        </div>
-        {
-          approvalTxActive &&
-          <LoadingModal
-            title={"approve transaction"}
-            success={!!approvalTxRawData}
-          />
-        }
-        {
-          migrationTxActive &&
-          <LoadingModal
-            title={"migration transaction"}
-            success={!!migrationTxRawData}
-          />
-        }
-      </Form>
+          {
+            !!successMessage &&
+            <Alert message={successMessage} type="success" />
+          }
+          {
+            !!errorMessage &&
+            <Alert message={errorMessage} type="error" />
+          }
+          <Form.Item
+            label="profile"
+          >
+            {getFieldDecorator('profile', {
+              initialValue: typeof profile !== "number" ? 0 : profile + 1,
+              rules: [
+                {
+                  required: true,
+                  message: 'please select profile'
+                }
+              ],
+            })(
+              <Select
+                onChange={this.handleSelectProfile}
+                disabled={!address}
+              >
+                <Option key={1} value={0} disabled={true}>select profile</Option>
+                {
+                  profiles.map((p, index) => <Option key={index + 2} value={index + 1}>{p.protocolName}</Option>)
+                }
+              </Select>
+            )}
+          </Form.Item>
+          {
+            !!profiles[profile] &&
+            <>
+              <img className={"protocol-img"} src={defiIcon} />
+              <Form.Item
+                label="protocol address"
+                style={{ textAlign: "left" }}
+              >
+                <a href={`https://goerli.etherscan.io/address/${profiles[profile].protocolAddress}`} target="_blank">{profiles[profile].protocolAddress}</a>
+              </Form.Item>
+              <Form.Item
+                label="migrator contract address"
+                style={{ textAlign: "left" }}
+              >
+                <a href={`https://goerli.etherscan.io/address/${profiles[profile].migratorContractAddress}`} target="_blank">{profiles[profile].migratorContractAddress}</a>
+              </Form.Item>
+              <Form.Item
+                label="staking token contract address"
+                style={{ textAlign: "left" }}
+              >
+                <a href={`https://goerli.etherscan.io/address/${profiles[profile].stakingTokenContractAddress}`} target="_blank">{profiles[profile].stakingTokenContractAddress}</a>
+              </Form.Item>
+            </>
+          }
+          <div>
+            <Button style={{ display: "block", margin: "0 auto 10px" }} type="primary" htmlType="submit" disabled={profile == null || !address}>
+              migrate to fixed protocol
+            </Button>
+            <Button type="primary" disabled={true}>
+              securely withdraw funds (comming soon)
+            </Button>
+          </div>
+          {
+            approvalTxActive &&
+            <LoadingModal
+              title={"approve transaction"}
+              success={!!approvalTxRawData}
+            />
+          }
+          {
+            migrationTxActive &&
+            <LoadingModal
+              title={"migration transaction"}
+              success={!!migrationTxRawData}
+            />
+          }
+        </Form>
+      </div>
     )
   }
 }
