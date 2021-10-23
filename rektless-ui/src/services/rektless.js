@@ -160,7 +160,7 @@ export default class Rektless {
     async createMigrationTxAsync(walletAddress, migratorContractAddress, nonce, maxFeePerGasBN) {
         try {
             let migratorContract = this.createMigratorContractClient(migratorContractAddress);
-            let tx = await migratorContract.populateTransaction.migrate();
+            let tx = await migratorContract.populateTransaction.migrateToFixedContract();
 
             let txFactory = FeeMarketEIP1559Transaction.fromTxData({
                 type: "0x02",

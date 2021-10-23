@@ -158,27 +158,32 @@ class MigrateForm extends React.Component {
           <>
             <Form.Item
               label="protocol address"
-              style={{textAlign:"left"}}
+              style={{ textAlign: "left" }}
             >
               <a href={`https://goerli.etherscan.io/address/${profiles[profile].protocolAddress}`} target="_blank">{profiles[profile].protocolAddress}</a>
             </Form.Item>
             <Form.Item
               label="migrator contract address"
-              style={{textAlign:"left"}}
+              style={{ textAlign: "left" }}
             >
               <a href={`https://goerli.etherscan.io/address/${profiles[profile].migratorContractAddress}`} target="_blank">{profiles[profile].migratorContractAddress}</a>
             </Form.Item>
             <Form.Item
               label="staking token contract address"
-              style={{textAlign:"left"}}
+              style={{ textAlign: "left" }}
             >
               <a href={`https://goerli.etherscan.io/address/${profiles[profile].stakingTokenContractAddress}`} target="_blank">{profiles[profile].stakingTokenContractAddress}</a>
             </Form.Item>
           </>
         }
-        <Button type="primary" htmlType="submit" disabled={profile == null}>
-          migrate
-        </Button>
+        <div>
+          <Button style={{marginBottom: "10px"}} type="primary" htmlType="submit" disabled={profile == null}>
+            migrate to fixed protocol
+          </Button>
+          <Button type="primary" disabled={true}>
+            securely withdraw funds (comming soon)
+          </Button>
+        </div>
         {
           approvalTxActive &&
           <LoadingModal
