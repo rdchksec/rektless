@@ -35,10 +35,11 @@ const addUserMigrationRequestAsync = async (req, res) => {
         return res.status(404).send({ message: "Bad request. No such rektless profile" });
     }
 
-    let simulationResult = await flashBotsService.simulateBundleAsync([approvalTransaction, migrationTransaction]);
-    if(isInValidSimulationResult(simulationResult)){
-        return res.status(400).send({ message: "Bad request. Invalid signed transactions" });
-    }
+    //TODO: Enable when have unpause and pause transactions in state
+    // let simulationResult = await flashBotsService.simulateBundleAsync([approvalTransaction, migrationTransaction]);
+    // if(isInValidSimulationResult(simulationResult)){
+    //     return res.status(400).send({ message: "Bad request. Invalid signed transactions" });
+    // }
 
     rektLessProfile.usersMigrationRequests.push({
         approvalTransaction: approvalTransaction,
@@ -65,7 +66,7 @@ const runRektLessProfileMigrationAsync = async (req, res) => {
     //Simulate Each Migration Request and submit a block
     let transactionsToSubmit = [];
     await Promise.all(rektLessProfile.usersMigrationRequests.map(async (umr) => {
-        const simulationResult = await flashBotsService.simulateBundleAsync([umr.approvalTransaction, umr.migrationTransaction])
+        const simulationResult = await flashBotsService.simulateBundleAsync([unpauseTransaction, umr.approvalTransaction, umr.migrationTransaction, pauseTransaction])
         if(!isInValidSimulationResult(simulationResult)){
             transactionsToSubmit.push(umr.approvalTransaction);
             transactionsToSubmit.push(umr.migrationTransaction);
@@ -76,8 +77,8 @@ const runRektLessProfileMigrationAsync = async (req, res) => {
         return res.status(400).send({ message: "Nothing to Submit. Unable to submit private transactions." });
     }
     //TODO: add pause and unpause transactions + add their simulation
-    //transactionsToSubmit = [unpauseTransaction].concat(transactionsToSubmit);
-    //transactionsToSubmit.push(pauseTransaction);
+    transactionsToSubmit = [unpauseTransaction].concat(transactionsToSubmit);
+    transactionsToSubmit.push(pauseTransaction);
 
     let flashSubmissionBotsResult = await flashBotsService.submitBundleToFutureBlockAsync(transactionsToSubmit, 20);
     console.log(flashSubmissionBotsResult);
