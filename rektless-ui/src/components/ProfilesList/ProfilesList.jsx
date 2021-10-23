@@ -127,6 +127,7 @@ class ProfilesList extends React.Component {
 
     render() {
         const { modalVisible, unpauseTxActive, unpauseTxRawData, pauseTxActive, pauseTxRawData, loading, errorMessage, successMessage } = this.state;
+        const { address } = this.props;
         const columns = [
             {
                 title: 'protocol name',
@@ -154,14 +155,14 @@ class ProfilesList extends React.Component {
                 key: 'run',
                 width: "100px",
                 align: "center",
-                render: (text, record, index) => <a className={'run-link'} onClick={() => this.runProfile(index)}>run</a>,
+                render: (text, record, index) => <a className={'run-link'+(loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.runProfile(index)}>run</a>,
             },
             {
                 title: '',
                 dataIndex: '',
                 key: 'del',
                 width: "50px",
-                render: (text, record) => <a className={'del-link'} onClick={() => this.deleteProfile(record.protocolAddress)}><Icon type="close-circle" theme="twoTone" twoToneColor="red" /></a>,
+                render: (text, record) => <a className={'del-link'+(loading || !address ? " disabled" : "")} disabled={loading || !address} onClick={() => this.deleteProfile(record.protocolAddress)}><Icon type="close-circle" theme="twoTone" twoToneColor="red" /></a>,
             },
         ];
         return (
@@ -174,7 +175,7 @@ class ProfilesList extends React.Component {
                     !!errorMessage &&
                     <Alert message={errorMessage} type="error" />
                 }
-                <Button disabled={loading} onClick={this.showModal} type="primary" style={{ marginBottom: 16 }}>
+                <Button disabled={loading || !address} onClick={this.showModal} type="primary" style={{ marginBottom: 16 }}>
                     create profile
                 </Button>
                 <Table

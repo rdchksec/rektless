@@ -29,7 +29,16 @@ class MigrateForm extends React.Component {
   componentDidMount() {
     RektlessClient.getProfilesAsync()
       .then(profiles => {
-        this.setState({ profiles })
+        this.setState({ profiles });
+        let protocolAddressParam = this.props.match.params.protocolAddress;
+        if(!!protocolAddressParam){
+          for(let i in this.state.profiles){
+            if(this.state.profiles[i].protocolAddress.toLowerCase() === protocolAddressParam.toLowerCase()){
+              this.setState({ profile: Number(i) });
+              break;
+            }
+          }
+        }
       })
       .catch(e => {
         this.setState({ errorMessage: "Internal server error" })
@@ -37,11 +46,12 @@ class MigrateForm extends React.Component {
   }
 
 
-  handleSelectProfile = (value) => {
+  handleSelectProfile = async (value) => {
     if (value > 0) {
-      this.setState({
+      await this.setState({
         profile: value - 1
-      })
+      });
+      this.props.history.push("/"+this.state.profiles[this.state.profile].protocolAddress);
     }
   }
 
@@ -114,6 +124,7 @@ class MigrateForm extends React.Component {
 
   render() {
     const { profile, profiles, approvalTxActive, migrationTxActive, approvalTxRawData, migrationTxRawData, errorMessage, successMessage } = this.state;
+    const { address } = this.props;
     const { getFieldDecorator } = this.props.form;
 
     return (
@@ -146,6 +157,7 @@ class MigrateForm extends React.Component {
           })(
             <Select
               onChange={this.handleSelectProfile}
+              disabled={!address}
             >
               <Option key={1} value={0} disabled={true}>select profile</Option>
               {
@@ -178,7 +190,7 @@ class MigrateForm extends React.Component {
           </>
         }
         <div>
-          <Button style={{marginBottom: "10px"}} type="primary" htmlType="submit" disabled={profile == null}>
+          <Button style={{marginBottom: "10px"}} type="primary" htmlType="submit" disabled={profile == null || !address}>
             migrate to fixed protocol
           </Button>
           <Button type="primary" disabled={true}>

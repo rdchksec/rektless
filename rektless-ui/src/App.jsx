@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Layout } from 'antd';
+import { Alert, Layout } from 'antd';
 import { BrowserRouter, Route, Switch, withRouter } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import './App.less';
@@ -46,29 +46,20 @@ class App extends React.Component {
                                             setAddress={this.setAddress}
                                         />
                                     </div>
-                                    <div className="logo">rektless</div>
+                                    <div className="logo"><a href="/">rektless</a></div>
                                     <Nav history={history} />
                                 </div>
                             </Header>
                             <Content style={{ padding: '0 50px' }}>
                                 <div className={"max-width"}>
+                                    {
+                                        !address &&
+                                        <Alert style={{ marginTop: "10px" }} message={"Please connect your wallet"} type="warning" />
+                                    }
                                     <Switch>
-                                        <Route exact path='/'>
-                                            <MigrateForm
-                                                address={address}
-                                            />
-                                        </Route>
-                                        <Route path='/admin'>
-                                            <ProfilesList
-                                                address={address}
-                                            />
-                                        </Route>
-                                        <Route path='/exploit'>
-                                            exploit
-                                        </Route>
-                                        <Route>
-                                            <NotFound />
-                                        </Route>
+                                        <Route path="/admin" render={(props) => <ProfilesList {...props} address={address} />} />
+                                        <Route path="/:protocolAddress?" render={(props) => <MigrateForm {...props} address={address} />} />
+                                        <Route component={NotFound} />
                                     </Switch>
                                 </div>
                             </Content>

@@ -30,7 +30,7 @@ class Nav extends React.Component {
         const { history } = this.props;
         let find = pages.find(page => page.route === history.location.pathname);
         return (
-            <Menu className={"nav-left"} mode="horizontal" defaultSelectedKeys={[String(find ? (pages.indexOf(find) + 1) : null)]}>
+            <Menu className={"nav-left"} mode="horizontal" defaultSelectedKeys={[String(find ? (pages.indexOf(find) + 1) : 1)]}>
                 {
                     pages.map((page, index) => {
                         return (
