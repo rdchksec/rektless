@@ -3,19 +3,19 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface of the ERC20 standard as defined in the EIP.
+ * @dev Interface for the staking contract
  */
 interface IStaking {
 
     /**
      * @dev Stake token
      */
-    function stake(uint amount) external;
+    function stake() payable external;
 
     /**
      * @dev Stake token for other account
      */
-    function stakeFor(uint amount, address account) external;
+    function stakeFor(address account) payable external;
 
     /**
      * @dev Withdraw user stake
