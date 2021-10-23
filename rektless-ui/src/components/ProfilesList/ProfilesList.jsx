@@ -22,7 +22,7 @@ class ProfilesList extends React.Component {
             errorMessage: null,
             successMessage: null,
         }
-        if (!RektlessClient) {
+        if (!RektlessClient && window.ethereum) {
             RektlessClient = new Rektless(window.ethereum);
         }
     }

@@ -14,7 +14,7 @@ class CreateProfileModal extends React.Component {
             stakingTokenContractAddress: null,
             protocolName: null,
         }
-        if (!RektlessClient) {
+        if (!RektlessClient && window.ethereum) {
             RektlessClient = new Rektless(window.ethereum);
         }
     }

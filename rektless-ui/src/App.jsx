@@ -51,17 +51,26 @@ class App extends React.Component {
                                 </div>
                             </Header>
                             <Content style={{ padding: '0 50px' }}>
-                                <div className={"max-width"}>
-                                    {
-                                        !address &&
-                                        <Alert style={{ marginTop: "10px" }} message={"Please connect your wallet"} type="warning" />
-                                    }
-                                    <Switch>
-                                        <Route path="/admin" render={(props) => <ProfilesList {...props} address={address} />} />
-                                        <Route path="/:protocolAddress?" render={(props) => <MigrateForm {...props} address={address} />} />
-                                        <Route component={NotFound} />
-                                    </Switch>
-                                </div>
+                                {
+                                    !!window.ethereum &&
+                                    <div className={"max-width"}>
+                                        {
+                                            !address &&
+                                            <Alert style={{ marginTop: "10px" }} message={"Please connect your wallet"} type="warning" />
+                                        }
+                                        <Switch>
+                                            <Route path="/admin" render={(props) => <ProfilesList {...props} address={address} />} />
+                                            <Route path="/:protocolAddress?" render={(props) => <MigrateForm {...props} address={address} />} />
+                                            <Route component={NotFound} />
+                                        </Switch>
+                                    </div>
+                                }
+                                {
+                                    !window.ethereum &&
+                                    <div className={"metamask-not-found"}>
+                                        Metamask not found. Check and try again.
+                                    </div>
+                                }
                             </Content>
                         </div>
                         <Footer style={{ textAlign: 'center' }}>
