@@ -14,27 +14,22 @@ contract StakingVuln is ERC20, Pausable, Ownable {
 
     event Exploited();
 
-    IERC20 token;
-
-    constructor(address _token) ERC20("wTKN", "Governance tkn") {
+    constructor() ERC20("wTKN", "Governance tkn") {
         _mint(address(this), 1_000_000_000 * 10 ** 18);
-        token = IERC20(_token);
     }
 
     /**
      * @dev Stake token
      */
-    function stake(uint amount) external whenNotPaused {
-        token.transferFrom(msg.sender, address(this), amount);
-        _transfer(address(this), msg.sender, amount);
+    function stake() payable external whenNotPaused {
+        super._transfer(address(this), msg.sender, msg.value);
     }
 
     /**
      * @dev Stake token for other account
      */
-    function stakeFor(uint amount, address account) external whenNotPaused {
-        token.transferFrom(msg.sender, address(this), amount);
-        _transfer(address(this), account, amount);
+    function stakeFor(address account) payable external whenNotPaused {
+        super._transfer(address(this), account, msg.value);
     }
 
     /**
@@ -42,23 +37,26 @@ contract StakingVuln is ERC20, Pausable, Ownable {
      */
     function withdraw(uint amount) external whenNotPaused {
         // _transferFrom(msg.sender, address(this), amount);
-        token.transfer(msg.sender, amount);
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send Ether");
     }
 
     /**
      * @dev Emergency withdraw for user tokens losing rewards
      */
     function emergencyWithdraw(address to) external whenNotPaused {
-        uint stakedAmount = balanceOf(msg.sender);
-        _transfer(msg.sender, address(this), stakedAmount);
-        token.transfer(to, stakedAmount);
+        uint stakedAmount = super.balanceOf(msg.sender);
+        super._transfer(msg.sender, address(this), stakedAmount);
+        (bool sent, ) = to.call{value: stakedAmount}("");
+        require(sent, "Failed to send Ether");
     }
 
     /**
      * @dev Simplification for contract hack - drains all tokens
      */
     function exploit() external whenNotPaused {
-        token.transfer(msg.sender, token.balanceOf(address(this)));
+        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
+        require(sent, "Failed to send Ether");
         emit Exploited();
     }
 
