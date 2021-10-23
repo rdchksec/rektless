@@ -1,0 +1,9 @@
+[
+    {
+        "inputs": [],
+        "name": "migrateToFixedContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]

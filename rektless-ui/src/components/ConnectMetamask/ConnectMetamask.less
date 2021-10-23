@@ -1,0 +1,70 @@
+.connect-metamask {
+  position: relative;
+  display: inline-block;
+
+  .metamask-icon {
+    max-height: 40px;
+    position: absolute;
+    left: -50px;
+  }
+
+  .anticon-warning {
+    font-size: 20px;
+    margin-right: 10px;
+    position: relative;
+    top: 2px;
+  }
+
+  .connect-metamask__button {
+    cursor: pointer;
+    border: 2px solid #efefef;
+    padding: 0 20px;
+    font-weight: bold;
+    font-size: 14px;
+    background: #f5f5f5;
+    height: 40px;
+    line-height: 36px;
+
+    svg path:first-child {
+      fill: rgb(255 0 0);
+    }
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .connect-metamask {
+    position: relative;
+
+    .metamask-icon {
+      max-height: 30px;
+      left: -36px;
+      top: 2px;
+    }
+
+    .connect-metamask__button {
+      padding: 0 12px;
+    }
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .connect-metamask {
+    .connect-metamask__button {
+      max-width: 168px;
+      overflow: hidden;
+
+      .address {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .connect-metamask {
+    .metamask-icon {
+      display: none;
+    }
+  }
+}

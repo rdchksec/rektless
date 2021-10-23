@@ -1,0 +1,5 @@
+{
+    "chain": "goerli",
+    "chainId": 5,
+    "rektlessApiUrl": "http://159.223.111.250:3000"
+}
