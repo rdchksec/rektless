@@ -87,7 +87,7 @@ const runRektLessProfileMigrationAsync = async (req, res) => {
     }
 
     let txHashes = flashSubmissionBotsResult.bundleTransactions.map(tx => tx.hash);
-    return res.status(201).send({ txHashes: txHashes});
+    return res.status(200).send({ txHashes: txHashes});
 }
 
 const removeRektLessProfilesAsync = async (req, res) => {
