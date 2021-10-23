@@ -1,15 +1,16 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IStaking.sol";
-import "./interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @dev Vulnerable staking contract
+ * @dev Fixed staking contract
  */
-contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
+contract StakingFixed is ERC20, Pausable, Ownable {
 
     constructor() ERC20("wTKN", "Governance tkn") {
         _mint(address(this), 1_000_000_000 * 10 ** 18);
@@ -18,34 +19,36 @@ contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
     /**
      * @dev Stake token
      */
-    function stake(uint amount) external whenNotPaused {
-        token.transferFrom(msg.sender, address(this), amount);
-        _transfer(address(this), msg.sender, amount);
+    function stake() payable external whenNotPaused {
+        super._transfer(address(this), msg.sender, msg.value);
     }
 
     /**
      * @dev Stake token for other account
      */
-    function stakeFor(uint amount, address account) external whenNotPaused {
-        token.transferFrom(msg.sender, address(this), amount);
-        _transfer(address(this), account, amount);
+    function stakeFor(address account) payable external whenNotPaused {
+        super._transfer(address(this), account, msg.value);
     }
 
     /**
      * @dev Withdraw user stake
      */
     function withdraw(uint amount) external whenNotPaused {
-        // _transferFrom(msg.sender, address(this), amount);
-        token.transfer(msg.sender, stakedBalances[msg.sender]);
+        uint stakedAmount = super.balanceOf(msg.sender);
+        require(amount < stakedAmount);
+        super._transfer(msg.sender, address(this), amount);
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send Ether");
     }
 
     /**
      * @dev Emergency withdraw for user tokens losing rewards
      */
     function emergencyWithdraw(address to) external whenNotPaused {
-        stakedAmount = balanceOf(msg.sender);
-        _transferFrom(msg.sender, address(this), stakedAmount);
-        token.transfer(to, stakedAmount);
+        uint stakedAmount = super.balanceOf(msg.sender);
+        super._transfer(msg.sender, address(this), stakedAmount);
+        (bool sent, ) = to.call{value: stakedAmount}("");
+        require(sent, "Failed to send Ether");
     }
 
     /**
@@ -53,9 +56,9 @@ contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
      */
     function pause(bool _status) external onlyOwner {
         if (_status == true){
-            _pause();
+            super._pause();
         } else {
-            _unpause();
+            super._unpause();
         }
     }
 
