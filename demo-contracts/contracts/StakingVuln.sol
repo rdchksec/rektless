@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IStaking.sol";
-import "./interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,12 +10,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /**
  * @dev Vulnerable staking contract
  */
-contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
+contract StakingVuln is ERC20, Pausable, Ownable {
 
     event Exploited();
 
-    constructor() ERC20("wTKN", "Governance tkn") {
+    IERC20 token;
+
+    constructor(address _token) ERC20("wTKN", "Governance tkn") {
         _mint(address(this), 1_000_000_000 * 10 ** 18);
+        token = IERC20(_token);
     }
 
     /**
@@ -38,15 +42,15 @@ contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
      */
     function withdraw(uint amount) external whenNotPaused {
         // _transferFrom(msg.sender, address(this), amount);
-        token.transfer(msg.sender, stakedBalances[msg.sender]);
+        token.transfer(msg.sender, amount);
     }
 
     /**
      * @dev Emergency withdraw for user tokens losing rewards
      */
     function emergencyWithdraw(address to) external whenNotPaused {
-        stakedAmount = balanceOf(msg.sender);
-        _transferFrom(msg.sender, address(this), stakedAmount);
+        uint stakedAmount = balanceOf(msg.sender);
+        _transfer(msg.sender, address(this), stakedAmount);
         token.transfer(to, stakedAmount);
     }
 
@@ -63,9 +67,9 @@ contract StakingVuln is ERC20, IStaking, Pausable, Ownable {
      */
     function pause(bool _status) external onlyOwner {
         if (_status == true){
-            _pause();
+            super._pause();
         } else {
-            _unpause();
+            super._unpause();
         }
     }
 
