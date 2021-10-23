@@ -81,7 +81,7 @@ class ProfilesList extends React.Component {
         // Unpause Transaction
         await sleep(2000);
 
-        let unpauseTxRequest = await RektlessClient.createPauseTxAsync(address, profiles[profileIndex], false, nonce, feeData.maxFeePerGas);
+        let unpauseTxRequest = await RektlessClient.createPauseTxAsync(address, profiles[profileIndex], false, nonce, feeData.maxFeePerGas, feeData.maxPriorityFeePerGas);
         if (unpauseTxRequest.errorMessage) {
             await this.setState({ errorMessage: unpauseTxRequest.errorMessage })
             this.setState({ unpauseTxActive: false, unpauseTxRawData: null });
@@ -98,7 +98,7 @@ class ProfilesList extends React.Component {
         this.setState({ pauseTxActive: true });
         await sleep(2000);
 
-        let pauseTxRequest = await RektlessClient.createPauseTxAsync(address, profiles[profileIndex], true, nonce, feeData.maxFeePerGas);
+        let pauseTxRequest = await RektlessClient.createPauseTxAsync(address, profiles[profileIndex], true, nonce, feeData.maxFeePerGas, feeData.maxPriorityFeePerGas);
         if (pauseTxRequest.errorMessage) {
             await this.setState({ errorMessage: pauseTxRequest.errorMessage })
             this.setState({ pauseTxActive: false, pauseTxRawData: null });

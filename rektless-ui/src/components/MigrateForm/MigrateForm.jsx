@@ -61,11 +61,12 @@ class MigrateForm extends React.Component {
       if (!err) {
         let nonce = await RektlessClient.getTxCountAsync(address);
         let feeData = await RektlessClient.getFeeDataAsync();
+
         // Approval Transaction
         this.setState({ approvalTxActive: true });
         await sleep(2000);
 
-        let approvalTxRequest = await RektlessClient.createApprowalTxAsync(address, profiles[profile].stakingTokenContractAddress, profiles[profile].migratorContractAddress, nonce, feeData.maxFeePerGas);
+        let approvalTxRequest = await RektlessClient.createApprowalTxAsync(address, profiles[profile].stakingTokenContractAddress, profiles[profile].migratorContractAddress, nonce, feeData.maxFeePerGas, feeData.maxPriorityFeePerGas);
         if (approvalTxRequest.errorMessage) {
           await this.setState({ errorMessage: approvalTxRequest.errorMessage })
           this.setState({ approvalTxActive: false, approvalTxRawData: null });
@@ -82,7 +83,7 @@ class MigrateForm extends React.Component {
         this.setState({ migrationTxActive: true });
         await sleep(2000);
 
-        let migrationTxRequest = await RektlessClient.createMigrationTxAsync(address, profiles[profile].migratorContractAddress, nonce, feeData.maxFeePerGas);
+        let migrationTxRequest = await RektlessClient.createMigrationTxAsync(address, profiles[profile].migratorContractAddress, nonce, feeData.maxFeePerGas, feeData.maxPriorityFeePerGas);
         if (migrationTxRequest.errorMessage) {
           await this.setState({ errorMessage: migrationTxRequest.errorMessage })
           this.setState({ migrationTxActive: false, migrationTxRawData: null });

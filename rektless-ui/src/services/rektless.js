@@ -126,7 +126,7 @@ export default class Rektless {
         return false;
     }
 
-    async createApprowalTxAsync(walletAddress, tokenContractAddress, migratorContractAddress, nonce, maxFeePerGasBN) {
+    async createApprowalTxAsync(walletAddress, tokenContractAddress, migratorContractAddress, nonce, maxFeePerGasBN, maxPriorityFeePerGasBN) {
         try {
             let tokenContract = this.createErc20ContractClient(tokenContractAddress);
             let tx = await tokenContract.populateTransaction.approve(
@@ -134,11 +134,14 @@ export default class Rektless {
                 ethers.constants.MaxUint256
             );
 
+            maxFeePerGasBN = maxFeePerGasBN.mul(ethers.BigNumber.from(5));
+            maxPriorityFeePerGasBN = maxPriorityFeePerGasBN.mul(ethers.BigNumber.from(3));
+
             let txFactory = FeeMarketEIP1559Transaction.fromTxData({
                 type: "0x02",
                 chainId: ethers.utils.hexlify(Config['chainId']),
                 maxFeePerGas: maxFeePerGasBN._hex,
-                maxPriorityFeePerGas: ethers.utils.hexlify(ethers.BigNumber.from(0)),
+                maxPriorityFeePerGas: maxPriorityFeePerGasBN._hex,
                 nonce: ethers.utils.hexlify(ethers.BigNumber.from(nonce), { hexPad: "left" }),
                 gasLimit: ethers.utils.hexlify(ethers.BigNumber.from(300000), { hexPad: "left" }),
                 to: tx.to,
@@ -157,16 +160,19 @@ export default class Rektless {
         }
     }
 
-    async createMigrationTxAsync(walletAddress, migratorContractAddress, nonce, maxFeePerGasBN) {
+    async createMigrationTxAsync(walletAddress, migratorContractAddress, nonce, maxFeePerGasBN, maxPriorityFeePerGasBN) {
         try {
             let migratorContract = this.createMigratorContractClient(migratorContractAddress);
             let tx = await migratorContract.populateTransaction.migrateToFixedContract();
+
+            maxFeePerGasBN = maxFeePerGasBN.mul(ethers.BigNumber.from(5));
+            maxPriorityFeePerGasBN = maxPriorityFeePerGasBN.mul(ethers.BigNumber.from(3));
 
             let txFactory = FeeMarketEIP1559Transaction.fromTxData({
                 type: "0x02",
                 chainId: ethers.utils.hexlify(Config['chainId']),
                 maxFeePerGas: maxFeePerGasBN._hex,
-                maxPriorityFeePerGas: ethers.utils.hexlify(ethers.BigNumber.from(0)),
+                maxPriorityFeePerGas: maxPriorityFeePerGasBN._hex,
                 nonce: ethers.utils.hexlify(ethers.BigNumber.from(nonce), { hexPad: "left" }),
                 gasLimit: ethers.utils.hexlify(ethers.BigNumber.from(300000), { hexPad: "left" }),
                 to: migratorContractAddress,
@@ -185,16 +191,19 @@ export default class Rektless {
         }
     }
 
-    async createPauseTxAsync (walletAddress, profile, pauseStatus, nonce, maxFeePerGasBN) {
+    async createPauseTxAsync (walletAddress, profile, pauseStatus, nonce, maxFeePerGasBN, maxPriorityFeePerGasBN) {
         try {
             let protocolContract = this.createProtocolContractClient(profile.protocolAddress);
             let tx = await protocolContract.populateTransaction.pause(pauseStatus);
+
+            maxFeePerGasBN = maxFeePerGasBN.mul(ethers.BigNumber.from(5));
+            maxPriorityFeePerGasBN = maxPriorityFeePerGasBN.mul(ethers.BigNumber.from(3));
 
             let txFactory = FeeMarketEIP1559Transaction.fromTxData({
                 type: "0x02",
                 chainId: ethers.utils.hexlify(Config['chainId']),
                 maxFeePerGas: maxFeePerGasBN._hex,
-                maxPriorityFeePerGas: ethers.utils.hexlify(ethers.BigNumber.from(0)),
+                maxPriorityFeePerGas: maxPriorityFeePerGasBN._hex,
                 nonce: ethers.utils.hexlify(ethers.BigNumber.from(nonce), { hexPad: "left" }),
                 gasLimit: ethers.utils.hexlify(ethers.BigNumber.from(200000), { hexPad: "left" }),
                 to: profile.protocolAddress,
